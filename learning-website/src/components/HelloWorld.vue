@@ -4,7 +4,7 @@
       class="align-center fill-height mx-auto"
       max-width="900"
     >
-      <h1>YouTube to MP3 Converter</h1>
+      <h1>YouTube URL to Scripts Converter</h1>
 
       <v-row
         align="center"
@@ -46,47 +46,46 @@
         </v-col>
       </v-row>
 
-      <v-divider class="mb-4"></v-divider>
-
-      <v-row
-        justify="start"
-        align="start"
-        class="mb-4"
-      >
-        <v-col
-          cols="12"
-          class="text-center"
-        >
-          <div
-            v-if="audioSrc"
-            class="player"
-          >
-            <h2 class="text-left">{{ videoTitle }}</h2>
-            <iframe
-              :src="youtubeEmbedUrl"
-              width="560"
-              height="315"
-              frameborder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen
-            ></iframe>
-          </div>
-          <div
-            v-if="errorMessage"
-            class="error-message"
-          >
-            <p>{{ errorMessage }}</p>
-          </div>
-        </v-col>
-      </v-row>
-
-      <v-divider class="mb-4"></v-divider>
-
       <div v-if="audioSrc">
-        <Transcription
-          :audioSrc="audioSrc"
-          :transcription="transcription"
-        />
+        <v-divider class="mb-4"></v-divider>
+
+        <v-row
+          justify="start"
+          align="start"
+          class="mb-4"
+        >
+          <v-col
+            cols="12"
+            class="text-center"
+          >
+            <div
+              v-if="audioSrc"
+              class="player"
+            >
+              <h2 class="text-left">{{ videoTitle }}</h2>
+              <YouTube
+                :src="audioSrc"
+                @ready="onReady"
+                ref="youtube"
+              />
+            </div>
+            <div
+              v-if="errorMessage"
+              class="error-message"
+            >
+              <p>{{ errorMessage }}</p>
+            </div>
+          </v-col>
+        </v-row>
+
+        <v-divider class="mb-4"></v-divider>
+
+        <div v-if="audioSrc">
+          <Transcription
+            :audioSrc="audioSrc"
+            :transcription="transcription"
+          />
+        </div>
       </div>
     </v-responsive>
   </v-container>
@@ -96,13 +95,16 @@
 import axios from "axios";
 import Transcription from "@/components/Transcription.vue";
 
+import YouTube from "vue3-youtube";
+
 export default {
   components: {
     Transcription,
+    YouTube,
   },
   data() {
     return {
-      youtubeUrl: "",
+      youtubeUrl: "https://www.youtube.com/watch?v=epD7eV0EnK4",
       audioSrc: null,
       videoTitle: null,
       transcription: null,
@@ -112,10 +114,20 @@ export default {
   },
   computed: {
     youtubeEmbedUrl() {
-      const videoId = this.youtubeUrl.split("v=")[1];
-      return `https://www.youtube.com/embed/${videoId}`;
+      let videoId = "";
+      if (this.youtubeUrl.includes("v=")) {
+        videoId = this.youtubeUrl.split("v=")[1];
+      } else if (this.youtubeUrl.includes("youtu.be/")) {
+        videoId = this.youtubeUrl.split("youtu.be/")[1];
+      }
+      const ampersandPosition = videoId.indexOf("&");
+      if (ampersandPosition !== -1) {
+        videoId = videoId.substring(0, ampersandPosition);
+      }
+      return `${videoId}`;
     },
   },
+
   methods: {
     async downloadMP3() {
       this.isLoading = true;
@@ -128,8 +140,11 @@ export default {
           url: this.youtubeUrl,
         });
 
-        if (response.data && response.data.audio && response.data.audio.url) {
-          this.audioSrc = response.data.audio.url;
+        if (response.data) {
+          console.log(response.data.title);
+          console.log(response.data.audioSrc);
+
+          this.audioSrc = response.data.audioSrc;
           this.transcription = response.data.transcription;
           this.videoTitle = response.data.title; // 假設後端回傳的標題為 'title'
         } else {
@@ -141,6 +156,9 @@ export default {
       } finally {
         this.isLoading = false;
       }
+    },
+    onReady() {
+      this.$refs.youtube.playVideo();
     },
   },
 };

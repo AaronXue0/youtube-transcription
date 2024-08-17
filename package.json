@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@techassi/vue-youtube-iframe": "^1.0.6",
+    "vue3-youtube": "^0.1.9"
+  }
+}
