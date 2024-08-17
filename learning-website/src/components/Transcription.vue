@@ -45,4 +45,7 @@ export default {
 .transcription {
   margin-top: 1.5rem;
 }
+.transcription p {
+  white-space: pre-line;
+}
 </style>

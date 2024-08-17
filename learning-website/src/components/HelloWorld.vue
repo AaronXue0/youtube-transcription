@@ -104,7 +104,7 @@ export default {
   },
   data() {
     return {
-      youtubeUrl: "https://www.youtube.com/watch?v=epD7eV0EnK4",
+      youtubeUrl: "https://www.youtube.com/watch?v=WLCw46JqbLk",
       audioSrc: null,
       videoTitle: null,
       transcription: null,
