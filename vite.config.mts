@@ -74,4 +74,18 @@ export default defineConfig({
       'Cross-Origin-Embedder-Policy': 'require-corp'
     }
   },
+  preview: {
+    proxy: {
+      '^/(.*)': {
+        target: 'http://localhost:5000',
+        rewrite: (path) => path.replace(/^\//, ''),
+        bypass: (req) => {
+          if (req.url.includes('.')) {
+            return req.url;  // 如果是靜態資源，直接返回
+          }
+          return '/index.html';  // 所有其他路徑重定向到 index.html
+        }
+      }
+    }
+  }
 })
