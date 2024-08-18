@@ -136,9 +136,12 @@ export default {
         this.audioSrc = null;
         this.videoTitle = null; // 重置標題
 
-        const response = await axios.post("http://localhost:3000/download", {
-          url: this.youtubeUrl,
-        });
+        const response = await axios.post(
+          "https://youtube-transcription-backend.onrender.com/download",
+          {
+            url: this.youtubeUrl,
+          }
+        );
 
         if (response.data) {
           console.log(response.data.title);
